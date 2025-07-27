@@ -1,6 +1,8 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\EmailVerificaionController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,19 +15,25 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+// Route to verify email
+Route::get('verify-email/{guard}',[EmailVerificaionController::class,'verify'])
+->name('verification.verfiy')
+->where('guard', 'freelancer|web');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 // Admin login 
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('login', [LoginController::class, 'index'])->name('login')->defaults('guard', 'admin');
-    Route::post('login', [LoginController::class, 'login'])->name('login.submit')->defaults('guard', 'admin');
-       Route::get('dashboard', function () {
-        return view('admin.index');
-    })->middleware('auth:admin')->name('dashboard');
+Route::prefix('admin/')->name('admin.')->group(function () {
+    Route::controller(AuthController::class)->group(function () {
+        Route::get('login', 'indexLogin')->name('login')->defaults('guard', 'admin');
+        Route::post('login', 'login')->name('login.submit')->defaults('guard', 'admin');
+        Route::get('dashboard', 'dashboard')->middleware('auth:admin')->name('dashboard');
+    });
+ 
 });
 
 
@@ -33,23 +41,29 @@ Route::prefix('admin')->name('admin.')->group(function () {
 // Freelancer login 
 
 Route::prefix('freelancer')->name('freelancer.')->group(function () {
-    Route::get('login', [LoginController::class, 'index'])->name('login')->defaults('guard', 'freelancer');
-    Route::post('login', [LoginController::class, 'login'])->name('login.submit')->defaults('guard', 'freelancer');
-        Route::get('dashboard', function () {
-        return view('freelancer.index');
-    })->middleware('auth:freelancer')->name('dashboard');
+    Route::controller(AuthController::class)->group(function () {
+        Route::get('login','indexLogin')->name('login')->defaults('guard', 'freelancer');
+        Route::post('login')->name('login.submit')->defaults('guard', 'freelancer');
+        Route::get('register','indexRegister')->name('register')->defaults('guard', 'freelancer');
+        Route::post('register','register')->name('register.submit')->defaults('guard', 'freelancer');
+        Route::get('dashboard', 'dashboard')->middleware('auth:freelancer')->name('dashboard');
+    });
+  
 });
 
 
 
 
-// // Web user login
+// User login
 Route::prefix('user')->name('user.')->group(function () {
-Route::get('login', [LoginController::class, 'index'])->name('login')->defaults('guard', 'user');
-Route::post('login', [LoginController::class, 'login'])->name('login.submit')->defaults('guard', 'user');
+    Route::controller(AuthController::class)->group(function () {
+        Route::get('login','indexLogin')->name('login')->defaults('guard', 'web');
+        Route::post('login')->name('login.submit')->defaults('guard', 'web');
+        Route::get('register','indexRegister')->name('register')->defaults('guard', 'web');
+        Route::post('register','register')->name('register.submit')->defaults('guard', 'web');
+        Route::get('dashboard', 'dashboard')->middleware('auth:web')->name('dashboard');
 
-Route::get('dashboard', function () {
-    return view('user.index');
-})->middleware('auth:user')->name('dashboard');
+    });
+
+    
 });
-

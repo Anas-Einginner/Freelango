@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('freelancers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-
             $table->string('email')->unique();
-
             $table->string('password');
-
+            $table->string('verification_token', 100)->nullable()->unique();
+            $table->timestamp('verification_token_send_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
         });
     }
