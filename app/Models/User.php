@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 class User extends Authenticatable implements CanResetPasswordContract
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable ,CanResetPassword;
 
     /**
      * The attributes that are mass assignable.
@@ -47,6 +48,6 @@ class User extends Authenticatable implements CanResetPasswordContract
     ];
         public function sendPasswordResetNotification($token)
     {
-        $this->notify(new ForgetPasswordNotification($token, 'freelancer'));
+        $this->notify(new ForgetPasswordNotification($token, 'web'));
     }
 }

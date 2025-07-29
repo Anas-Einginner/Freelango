@@ -53,7 +53,8 @@ class AuthController extends Controller
         ]);
 
         $user->notify(new VerfiyEmailNotification($token, $guard));
-        return redirect()->route('con');
+        // كانت auth
+        return redirect()->route('' . $guard . '.login')->with('status', 'تم إنشاء الحساب بنجاح. يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.');
     }
 
 
