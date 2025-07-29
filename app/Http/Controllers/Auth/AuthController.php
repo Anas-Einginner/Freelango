@@ -2,165 +2,137 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
 use App\Notifications\VerfiyEmailNotification;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    //indexLogin method to show the login form
-    public function indexLogin(Request $request)
+    function indexLogin(Request $request)
     {
         $guard = $request->route('guard');
         return view('auth.login', compact('guard'));
     }
 
-    //login method to handle the login request
-    public function login(Request $request)
+    function login(Request $request)
     {
         $guard = $request->route('guard');
         $data = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8',
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:8']
         ]);
 
         if (Auth::guard($guard)->attempt($data, $request->filled('remember'))) {
-
             return redirect()->route("{$guard}.dashboard");
         }
         return redirect()->back();
     }
 
-    
-    
-    function indexRegister()
+    function indexRegister(Request $request)
     {
-        $guard = request()->route('guard');
+        $guard = $request->route('guard');
         return view('auth.register', compact('guard'));
     }
-    /**
-     
-    * Register a new user.
-     
-    */
+
     function register(Request $request)
     {
-     
-    $guard = request()->route('guard');
-    $provider = config("auth.guards.$guard.provider");
-    $modalClass = config("auth.providers.$provider.model");
-    // make the .png name for the id card with user and id card
-    $nameIdCardWithUser = 'id_cards_with_user' . time() . '_' . rand() . '.' . $request->file('imageIdCardWithUser')->getClientOriginalExtension();
-    $nameIdCard = 'id_card_' . time() . '_' . rand() . '.' . $request->file('imageIdCard')->getClientOriginalExtension();
-    $token =Str::random(); 
-    $user = $modalClass::create([
+        $guard = $request->route('guard');
+        $provider = config("auth.guards.$guard.provider");
+        $modelClass = config("auth.providers.$provider.model");
+        $token = Str::random();
+        $user = $modelClass::create([
             'name' => $request->fullname,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
-            // 'bio' => $request->bio,
-            // // 'experience' => $request->experience,
-            // 'skills' =>  $request->skills,
-            'verification_token'=>$token,
-            'verification_token_send_at'=>now(),
-            // 'email_verified_at',
-            // 'image_id_card' => $request->file('imageIdCard')
-            // ->storeAs(
-            //     'id_cards',
-            //     $nameIdCard,
-            //     'public'),
-            // 'image_id_card_with_user' => $request->file('imageIdCardWithUser')
-            // ->storeAs(
-            //     'id_cards_with_user',
-            //     $nameIdCardWithUser,
-            //     'public'),
+            'password' => $request->password,
+            'verification_token' => $token,
+            'verification_token_sent_at' => now(),
         ]);
-        
-        $user->notify(new VerfiyEmailNotification($token,$guard));
 
-        return 'تم ارسال رابط التحقق من البريد الإلكتروني بنجاح';
+        $user->notify(new VerfiyEmailNotification($token, $guard));
+        return redirect()->route('con');
     }
-    
 
-    function dashboard()
+
+
+
+
+    function dashboard(Request $request)
     {
-        $guard = request()->route('guard');
-        return view($guard . '.index');
-        
+        $guard = $request->route('guard');
+        return view($guard . '.dashboard');
     }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   public function indexForgetPassword(Request $request)
+    {
+        $guard = $request->route('guard');
+        return view('auth.forget-password', compact('guard'));
+    }
+
+    public function forgetPassword(Request $request)
+    {
+        $guard = $request->route('guard');
+        $request->validate(['email' => 'required|email']);
+
+        // تعيين broker حسب الguard
+        $broker = $this->getPasswordBroker($guard);
+
+        $status = Password::broker($broker)->sendResetLink(
+            $request->only('email')
+        );
+
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with(['status' => __($status)])
+            : back()->withErrors(['email' => __($status)]);
+    }
+
+
+    public function showResetForm(Request $request, $token = null)
+    {
+        $guard = $request->route('guard');
+        $email = $request->query('email');
+
+        return view('auth.reset-password', compact('guard', 'token', 'email'));
+    }
+
+
+
+    public function resetPassword(Request $request)
+    {
+
+        // dd($request->all());
+        $guard = $request->route('guard');
+
+
+        $broker = $this->getPasswordBroker($guard);
+
+        $status = Password::broker($broker)->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->password = Hash::make($password);
+                $user->save();
+            }
+        );
+
+        return $status === Password::PASSWORD_RESET
+            ? redirect()->route("$guard.login")->with('status', __($status))
+            : back()->withErrors(['email' => [__($status)]]);
+    }
+
+    // Helper method لتحديد broker حسب guard
+    protected function getPasswordBroker($guard)
+    {
+        return match ($guard) {
+            'admin' => 'admins',
+            'freelancer' => 'freelancers',
+            default => 'users',
+        };
+    }
 
 
 

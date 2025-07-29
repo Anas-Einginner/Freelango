@@ -7,7 +7,7 @@
             <div class="login-illustration">
                 <h2>مرحبًا بعودتك!</h2>
                 <p>سجل دخولك الآن للوصول إلى آلاف المشاريع والفرص الاستثنائية في أكبر منصة عمل حر عربية</p>
-                <img src="https://cdn.dribbble.com/users/1577044/screenshots/6539426/authentication.png" alt="تسجيل الدخول">
+                {{-- <img src="https://cdn.dribbble.com/users/1577044/screenshots/6539426/authentication.png" alt="تسجيل الدخول"> --}}
             </div>
 
             <div class="login-form-container">
@@ -39,7 +39,7 @@
                             <input type="checkbox" id="remember">
                             <label for="remember">تذكرني</label>
                         </div>
-                        <a href="forgot-password.html" class="forgot-password">هل نسيت كلمة المرور؟</a>
+                    <a href="{{ route($guard . '.forget-password') }}" class="forgot-password">هل نسيت كلمة المرور؟</a>
                     </div>
 
                     <button type="submit" class="btn-login">
