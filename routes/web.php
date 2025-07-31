@@ -23,14 +23,14 @@ Route::get('con', function () {
     return view('auth.confirm');
 })->name('con');
 
-Route::get('/index', function () {
-    return view('auth.forget-password');
-});
+// Route::get('/index', function () {
+//     return view('auth.forget-password');
+// });
 
+/*
 // Admin login 
 
-Route::prefix('admin/')->name('admin.')->group(function () {
-    Route::controller(AuthController::class)->group(function () {
+Route::prefix('admin/')->name('admin.')->controller(AuthController::class)->group(function () {
         Route::get('login', 'indexLogin')->name('login')->defaults('guard', 'admin');
         Route::post('login', 'login')->name('login.submit')->defaults('guard', 'admin');
         Route::get('forget-password',  'indexForgetPassword')->name('forget-password')->defaults('guard', 'admin');
@@ -38,15 +38,13 @@ Route::prefix('admin/')->name('admin.')->group(function () {
         Route::get('reset-password/{token}',  'showResetForm')->name('password.reset')->defaults('guard', 'admin');
         Route::post('reset-password', 'resetPassword')->name('password.update')->defaults('guard', 'admin');
         Route::get('dashboard', 'dashboard')->defaults('guard', 'admin')->middleware('auth:admin')->name('dashboard');
-    });
 });
 
 
 
 // Freelancer login 
 
-Route::prefix('freelancer')->name('freelancer.')->group(function () {
-    Route::controller(AuthController::class)->group(function () {
+Route::prefix('freelancer')->controller(AuthController::class)->name('freelancer.')->group(function () {
         Route::get('login', 'indexLogin')->name('login')->defaults('guard', 'freelancer');
         Route::post('login', 'login')->name('login.submit')->defaults('guard', 'freelancer');
         Route::get('register', 'indexRegister')->name('register')->defaults('guard', 'freelancer');
@@ -57,7 +55,6 @@ Route::prefix('freelancer')->name('freelancer.')->group(function () {
         Route::get('reset-password/{token}',  'showResetForm')->name('password.reset')->defaults('guard', 'freelancer');
         Route::post('reset-password', 'resetPassword')->name('password.update')->defaults('guard', 'freelancer');
         Route::get('dashboard', 'dashboard')->defaults('guard', 'freelancer')->middleware('auth:freelancer')->name('dashboard');
-    });
 });
 
 
@@ -65,11 +62,9 @@ Route::prefix('freelancer')->name('freelancer.')->group(function () {
 
 // User login
 // User Routes
-Route::prefix('user')->name('web.')->group(function () {
-    Route::controller(AuthController::class)->group(function () {
+Route::prefix('user')->name('web.')->controller(AuthController::class)->group(function () {
         Route::get('login',  'indexLogin')->name('login')->defaults('guard', 'web');
         Route::post('login', 'login')->name('login.submit')->defaults('guard', 'web');
-
         Route::get('register',  'indexRegister')->name('web.register')->defaults('guard', 'web');
         Route::post('register',  'register')->name('web.register.submit')->defaults('guard', 'web');
         Route::get('dashboard', 'dashboard')->name('dashboard')->defaults('guard', 'web');
@@ -77,8 +72,13 @@ Route::prefix('user')->name('web.')->group(function () {
         Route::post('forget-password',  'forgetPassword')->name('forget-password.submit')->defaults('guard', 'web');
         Route::get('reset-password/{token}',  'showResetForm')->name('password.reset')->defaults('guard', 'web');
         Route::post('reset-password', 'resetPassword')->name('password.update')->defaults('guard', 'web');
-        Route::post('reset-password', 'resetPassword')
-            ->name('password.update')
-            ->defaults('guard', 'web');
-    });
+        Route::post('reset-password', 'resetPassword')->name('password.update')->defaults('guard', 'web');
+  
 });
+*/
+Route::get('confirm',function () {
+    return 'تحقق من البريد يا شاطر';
+})->name('con');
+Route::authGuard('freelancer', 'freelancer', 'freelancer');
+Route::authGuard('web', 'web', 'web');
+Route::authGuard('admin', 'admin', 'admin', ['register' => false]);

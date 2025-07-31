@@ -1,4 +1,4 @@
-@extends('master')
+@extends('auth.master')
 @section('content')
     <section class="reset-section">
         <div class="reset-container">
