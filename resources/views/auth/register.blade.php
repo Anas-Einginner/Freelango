@@ -1,4 +1,4 @@
-@extends('master')
+@extends('auth.master')
 @section('content')
     <section class="register-section">
         <div class="register-container">
